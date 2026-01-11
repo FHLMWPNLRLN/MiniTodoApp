@@ -7,13 +7,48 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+/**
+ * Room数据库配置类
+ * 
+ * 作用：配置应用的数据库、实体和迁移策略
+ * 
+ * 数据库结构：
+ * - 实体：TodoEntity（待办项）、CategoryEntity（分类）
+ * - 版本：3（当前）
+ * - 路径：本地SQLite数据库
+ * 
+ * 版本历史：
+ * - v1→v2: 添加分类功能，创建category_table，修改todo_table外键
+ * - v2→v3: 添加提醒功能，为todo_table添加remindTime列
+ * 
+ * 迁移策略：
+ * - 使用显式迁移确保旧版本用户数据完整性
+ * - 每次数据库结构变化都需要编写迁移脚本
+ * - 自动检测版本并执行相应迁移
+ * 
+ * 设计原则：
+ * - exportSchema=false: 不导出schema（简化示例）
+ * - 单例模式：确保整个应用只有一个数据库实例
+ * - 使用Singleton以避免在内存中同时打开多个实例
+ */
 @Database(
     entities = [TodoEntity::class, CategoryEntity::class],
     version = 3,
     exportSchema = false
 )
 abstract class TodoDatabase : RoomDatabase() {
+    /**
+     * 获取待办项DAO
+     * 
+     * 用途：提供待办项的数据库操作接口
+     */
     abstract fun todoDao(): TodoDao
+    
+    /**
+     * 获取分类DAO
+     * 
+     * 用途：提供分类的数据库操作接口
+     */
     abstract fun categoryDao(): CategoryDao
 
     companion object {
