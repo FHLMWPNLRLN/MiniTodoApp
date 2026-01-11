@@ -40,6 +40,31 @@
         app:layout_constraintStart_toEndOf="@id/todo_checkbox"
         app:layout_constraintTop_toBottomOf="@id/todo_title"/>
 
+    <TextView
+        android:id="@+id/todo_reminder_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="8dp"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:visibility="gone"
+        android:drawableStart="@android:drawable/ic_menu_info_details"
+        app:layout_constraintStart_toEndOf="@id/todo_category"
+        app:layout_constraintTop_toBottomOf="@id/todo_title"/>
+
+    <ImageButton
+        android:id="@+id/todo_reminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_dialog_info"
+        android:contentDescription="设置提醒"
+        app:layout_constraintEnd_toStartOf="@id/todo_delete"
+        app:layout_constraintTop_toTopOf="@id/todo_title"
+        app:layout_constraintBottom_toBottomOf="@id/todo_title"/>
+
     <ImageButton
         android:id="@+id/todo_delete"
         android:layout_width="wrap_content"

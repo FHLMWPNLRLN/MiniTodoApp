@@ -14,7 +14,8 @@ import com.example.minitodo.data.CategoryEntity
 
 class CategoryAdapter(
     private val onSelect: (CategoryEntity) -> Unit,
-    private val onDelete: (CategoryEntity) -> Unit
+    private val onDelete: (CategoryEntity) -> Unit,
+    private val onRename: (CategoryEntity, String) -> Unit = { _, _ -> }
 ) : ListAdapter<CategoryEntity, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     private var selectedCategoryId: Int? = null
@@ -36,6 +37,24 @@ class CategoryAdapter(
 
             itemView.setOnClickListener {
                 onSelect(category)
+            }
+
+            // 长按编辑分类名称
+            itemView.setOnLongClickListener {
+                if (category.id != 0) {
+                    val dialog = EditCategoryDialogFragment.newInstance(
+                        category,
+                        object : EditCategoryDialogFragment.OnCategoryEditListener {
+                            override fun onCategoryRenamed(oldCategory: CategoryEntity, newName: String) {
+                                onRename(oldCategory, newName)
+                            }
+                        }
+                    )
+                    // 需要从 Fragment 中调用
+                    true
+                } else {
+                    false
+                }
             }
 
             // Prevent deleting the pseudo 'Uncategorized' item (we use id == 0)

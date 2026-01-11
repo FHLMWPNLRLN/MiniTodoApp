@@ -24,5 +24,6 @@ data class TodoEntity(
     val title: String,
     val isDone: Boolean = false,
     val categoryId: Int? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val remindTime: String = ""  // 提醒时间 (格式: yyyy-MM-dd HH:mm)
 )

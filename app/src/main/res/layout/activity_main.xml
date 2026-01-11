@@ -17,6 +17,45 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+    <!-- Statistics -->
+    <LinearLayout
+        android:id="@+id/stats_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_text">
+
+        <TextView
+            android:id="@+id/total_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="总计：0"
+            android:textSize="14sp"
+            android:textColor="#666666"/>
+
+        <TextView
+            android:id="@+id/completed_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已完成：0"
+            android:textSize="14sp"
+            android:textColor="#4CAF50"/>
+
+        <TextView
+            android:id="@+id/uncompleted_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="未完成：0"
+            android:textSize="14sp"
+            android:textColor="#FF9800"/>
+    </LinearLayout>
+
     <!-- Input Section -->
     <EditText
         android:id="@+id/input_todo"
@@ -28,7 +67,7 @@
         android:maxLength="200"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button_add"
-        app:layout_constraintTop_toBottomOf="@id/title_text"
+        app:layout_constraintTop_toBottomOf="@id/stats_layout"
         android:layout_marginTop="12dp"/>
 
     <Button

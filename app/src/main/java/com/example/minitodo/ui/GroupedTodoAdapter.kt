@@ -22,7 +22,8 @@ class GroupedTodoAdapter(
     private val onDelete: (TodoEntity) -> Unit,
     private val getCategoryColor: (Int?) -> String? = { null },
     private val getCategoryName: (Int?) -> String? = { null },
-    private val onToggleHeader: (categoryId: Int?) -> Unit
+    private val onToggleHeader: (categoryId: Int?) -> Unit,
+    private val onSetReminder: (TodoEntity) -> Unit = {}
 ) : ListAdapter<GroupedListItem, RecyclerView.ViewHolder>(GroupedDiffCallback()) {
 
     companion object {
@@ -48,6 +49,8 @@ class GroupedTodoAdapter(
         private val deleteBtn: ImageButton = itemView.findViewById(R.id.todo_delete)
         private val categoryTag: TextView = itemView.findViewById(R.id.todo_category)
         private val checkBox = itemView.findViewById<android.widget.CheckBox>(R.id.todo_checkbox)
+        private val reminderBtn: ImageButton? = itemView.findViewById<ImageButton?>(R.id.todo_reminder)
+        private val reminderTime: TextView? = itemView.findViewById<TextView?>(R.id.todo_reminder_time)
 
         fun bind(todo: TodoEntity) {
             title.text = todo.title
@@ -59,9 +62,32 @@ class GroupedTodoAdapter(
                 title.alpha = 1f
             }
 
+            checkBox.setOnCheckedChangeListener(null)
             checkBox.isChecked = todo.isDone
             checkBox.setOnCheckedChangeListener { _, _ -> onToggleDone(todo) }
             deleteBtn.setOnClickListener { onDelete(todo) }
+
+            // 设置提醒时间显示
+            if (todo.remindTime.isNotEmpty()) {
+                reminderTime?.text = todo.remindTime
+                reminderTime?.visibility = View.VISIBLE
+                // 根据提醒时间是否已到达改变颜色
+                if (com.example.minitodo.notification.AlarmUtils.hasReachedTime(todo.remindTime)) {
+                    reminderTime?.setTextColor(
+                        itemView.context.getColor(android.R.color.holo_orange_light)
+                    )
+                } else {
+                    reminderTime?.setTextColor(
+                        itemView.context.getColor(android.R.color.holo_blue_dark)
+                    )
+                }
+            } else {
+                reminderTime?.visibility = View.GONE
+            }
+
+            reminderBtn?.setOnClickListener {
+                onSetReminder(todo)
+            }
 
             val name = getCategoryName(todo.categoryId)
             val color = getCategoryColor(todo.categoryId)

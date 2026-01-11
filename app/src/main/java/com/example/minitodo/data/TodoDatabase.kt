@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [TodoEntity::class, CategoryEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class TodoDatabase : RoomDatabase() {
@@ -92,6 +92,18 @@ abstract class TodoDatabase : RoomDatabase() {
             }
         }
 
+        // 数据库迁移：从版本2到版本3，添加 remindTime 列以支持提醒功能
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 为 todo_table 添加 remindTime 列，默认值为空字符串
+                database.execSQL(
+                    """
+                    ALTER TABLE `todo_table` ADD COLUMN `remindTime` TEXT NOT NULL DEFAULT ''
+                    """.trimIndent()
+                )
+            }
+        }
+
         fun getDatabase(context: Context): TodoDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -99,7 +111,7 @@ abstract class TodoDatabase : RoomDatabase() {
                     TodoDatabase::class.java,
                     "todo_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance
