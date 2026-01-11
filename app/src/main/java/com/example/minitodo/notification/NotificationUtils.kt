@@ -113,7 +113,7 @@ object NotificationUtils {
      * 通知布局：
      * - 标题：\"待办提醒\"
      * - 内容：待办项标题
-     * - 详细：\"提醒时间：xxx\\n待办项标题\"（使用BigTextStyle展示）
+     * - 详细：\"提醒时间：xxx + 待办项标题\"（使用BigTextStyle展示）
      * 
      * 特点：
      * - setAutoCancel(true)：用户点击后自动取消通知

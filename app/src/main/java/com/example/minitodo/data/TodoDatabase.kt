@@ -13,13 +13,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * 作用：配置应用的数据库、实体和迁移策略
  * 
  * 数据库结构：
- * - 实体：TodoEntity（待办项）、CategoryEntity（分类）
- * - 版本：3（当前）
+ * - 实体：TodoEntity（待办项）
+ * - 版本：4（当前）
  * - 路径：本地SQLite数据库
  * 
  * 版本历史：
  * - v1→v2: 添加分类功能，创建category_table，修改todo_table外键
  * - v2→v3: 添加提醒功能，为todo_table添加remindTime列
+ * - v3→v4: 移除分类功能，删除categoryId列和category_table
  * 
  * 迁移策略：
  * - 使用显式迁移确保旧版本用户数据完整性
@@ -32,8 +33,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * - 使用Singleton以避免在内存中同时打开多个实例
  */
 @Database(
-    entities = [TodoEntity::class, CategoryEntity::class],
-    version = 3,
+    entities = [TodoEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class TodoDatabase : RoomDatabase() {
@@ -43,13 +44,6 @@ abstract class TodoDatabase : RoomDatabase() {
      * 用途：提供待办项的数据库操作接口
      */
     abstract fun todoDao(): TodoDao
-    
-    /**
-     * 获取分类DAO
-     * 
-     * 用途：提供分类的数据库操作接口
-     */
-    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile
@@ -139,6 +133,43 @@ abstract class TodoDatabase : RoomDatabase() {
             }
         }
 
+        // 数据库迁移：从版本3到版本4，移除分类功能（删除categoryId列和category_table）
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 1) 创建新的 todo_table，不包含 categoryId 列和外键
+                database.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `todo_table_new` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `title` TEXT NOT NULL,
+                        `isDone` INTEGER NOT NULL,
+                        `createdAt` INTEGER NOT NULL,
+                        `remindTime` TEXT NOT NULL DEFAULT ''
+                    )
+                    """.trimIndent()
+                )
+
+                // 2) 将旧表数据拷贝到新表，不包含 categoryId
+                database.execSQL(
+                    """
+                    INSERT INTO `todo_table_new` (id, title, isDone, createdAt, remindTime)
+                    SELECT id, title, isDone, createdAt, remindTime
+                    FROM `todo_table`
+                    """.trimIndent()
+                )
+
+                // 3) 删除旧表并将新表重命名为 todo_table
+                database.execSQL("DROP TABLE IF EXISTS `todo_table`")
+                database.execSQL("ALTER TABLE `todo_table_new` RENAME TO `todo_table`")
+
+                // 4) 删除分类表（不再使用）
+                database.execSQL("DROP TABLE IF EXISTS `category_table`")
+
+                // 5) 删除不再使用的索引
+                database.execSQL("DROP INDEX IF EXISTS `index_todo_table_categoryId`")
+            }
+        }
+
         fun getDatabase(context: Context): TodoDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -146,7 +177,7 @@ abstract class TodoDatabase : RoomDatabase() {
                     TodoDatabase::class.java,
                     "todo_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                 INSTANCE = instance
                 instance

@@ -25,7 +25,7 @@ import com.example.minitodo.notification.NotificationUtils
  * - 注册Intent Filter: ACTION_ALARM_REMINDER
  * - 系统唤醒应用（如果需要）
  * - onReceive()同步执行，不能执行长耗时操作
- * - 超过10秒会被系统强制停止\n */
+ * - 超过10秒会被系统强制停止 */
 class AlarmReceiver : BroadcastReceiver() {
 
     companion object {

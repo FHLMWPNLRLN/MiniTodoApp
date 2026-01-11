@@ -1,8 +1,6 @@
 package com.example.minitodo.data
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -17,29 +15,10 @@ import androidx.room.PrimaryKey
  * - id: 主键，自动递增
  * - title: 待办标题
  * - isDone: 是否完成状态
- * - categoryId: 所属分类ID（外键）
- * - createdAt: 创建时间戳
+ * - createdAt: 创建时间戳（毫秒）
  * - remindTime: 提醒时间（格式：yyyy-MM-dd HH:mm）
- * 
- * 关键设计：
- * 1. 使用ForeignKey约束确保categoryId引用有效的分类
- * 2. 在categoryId上创建索引以提高按分类查询性能
- * 3. 提醒时间使用String格式便于显示和解析
  */
-@Entity(
-    tableName = "todo_table",
-    foreignKeys = [
-        ForeignKey(
-            entity = CategoryEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["categoryId"],
-            onDelete = ForeignKey.SET_NULL
-        )
-    ],
-    indices = [
-        Index("categoryId")  // 添加索引以提高查询性能
-    ]
-)
+@Entity(tableName = "todo_table")
 data class TodoEntity(
     /**
      * 待办项的唯一标识符
@@ -62,14 +41,6 @@ data class TodoEntity(
      * - 用于排序和统计
      */
     val isDone: Boolean = false,
-    
-    /**
-     * 所属分类的ID
-     * - nullable: 允许待办项不属于任何分类
-     * - 外键约束：引用CategoryEntity.id
-     * - 当分类被删除时，该字段自动设为null
-     */
-    val categoryId: Int? = null,
     
     /**
      * 创建时间戳

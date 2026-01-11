@@ -11,23 +11,16 @@ import kotlinx.coroutines.flow.Flow
  * 设计模式：
  * - 使用Flow<T>实现响应式查询，自动观察数据变化
  * - 使用suspend函数实现协程异步操作
- * - 支持事务操作确保数据一致性
  * 
  * 查询策略：
  * 1. getAllTodos(): 获取所有待办项，用于主列表显示
- * 2. getTodosByCategory(): 获取特定分类的待办项
- * 3. searchTodos(): 全文搜索待办项标题
- * 4. getUncompletedTodos(): 获取未完成的待办项
- * 5. getAllTodosWithCategory(): 获取待办项及其分类信息
+ * 2. searchTodos(): 全文搜索待办项标题
+ * 3. getUncompletedTodos(): 获取未完成的待办项
  * 
  * 修改操作：
  * - insert(): 新增待办项
  * - update(): 更新待办项
  * - delete(): 删除待办项
- * 
- * 特殊设计：
- * - 使用@Transaction处理涉及多表的复杂查询
- * - 使用onConflict = REPLACE处理主键冲突
  */
 @Dao
 interface TodoDao {
@@ -42,16 +35,6 @@ interface TodoDao {
      */
     @Query("SELECT * FROM todo_table ORDER BY createdAt DESC")
     fun getAllTodos(): Flow<List<TodoEntity>>
-
-    /**
-     * 获取特定分类的待办项
-     * 
-     * @param categoryId 分类ID
-     * 返回：该分类下的所有待办项Flow流
-     * 排序：按创建时间降序
-     */
-    @Query("SELECT * FROM todo_table WHERE categoryId = :categoryId ORDER BY createdAt DESC")
-    fun getTodosByCategory(categoryId: Int): Flow<List<TodoEntity>>
 
     /**
      * 搜索待办项
@@ -75,21 +58,6 @@ interface TodoDao {
      */
     @Query("SELECT * FROM todo_table WHERE isDone = 0 ORDER BY createdAt DESC")
     fun getUncompletedTodos(): Flow<List<TodoEntity>>
-
-    /**
-     * 获取待办项及其分类信息
-     * 
-     * 功能：查询待办项，同时关联其所属的分类对象
-     * 返回：[TodoWithCategory]列表的Flow流，包含待办项和分类信息
-     * 
-     * 注意：
-     * - @Transaction确保原子性操作
-     * - 如果categoryId为null，category字段为null
-     * - 用于分组显示或需要分类信息的场景
-     */
-    @Transaction
-    @Query("SELECT * FROM todo_table ORDER BY createdAt DESC")
-    fun getAllTodosWithCategory(): Flow<List<TodoWithCategory>>
 
     /**
      * 插入新的待办项
