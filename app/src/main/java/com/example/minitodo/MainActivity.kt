@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
  * 架构说明：
  * - 使用MVVM架构，业务逻辑在TodoViewModel中
  * - 使用Room数据库进行数据持久化
- * - 使用RecyclerView显示列表，支持1000+项流畅滑动
+ * - 使用RecyclerView显示列表，支持流畅滑动
  * - 使用StateFlow实现响应式数据绑定
  */
 class MainActivity : AppCompatActivity() {
